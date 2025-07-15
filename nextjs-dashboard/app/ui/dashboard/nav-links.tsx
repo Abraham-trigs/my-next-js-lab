@@ -28,12 +28,6 @@ const links = [
     icon: UserGroupIcon 
   },
 
-  {
-  name: 'Location',
-  href: '/dashboard/invoices',
-  icon: PointerIcon,
-  },
-
 ];
 
   export default function NavLinks() {
