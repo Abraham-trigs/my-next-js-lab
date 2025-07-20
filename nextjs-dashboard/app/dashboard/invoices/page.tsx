@@ -1,12 +1,15 @@
-import { fetchFilteredInvoices } from '@/app/lib/data';
+import { fetchFilteredInvoices, fetchInvoicesPages } from '@/app/lib/data';
+import Link from 'next/link';
+import clsx from 'clsx';
 
 type Props = {
-  searchParams:  { page?: string }
+  searchParams: { page?: string }
 };
 
 export default async function InvoicesPage({ searchParams }: Props) {
   const currentPage = Number(searchParams.page) || 1;
   const invoices = await fetchFilteredInvoices('', currentPage);
+  const totalPages = await fetchInvoicesPages('');
 
   return (
     <main className="p-6">
@@ -27,11 +30,37 @@ export default async function InvoicesPage({ searchParams }: Props) {
         ))}
       </div>
 
-      <div className="mt-6 flex gap-4">
-        <a href={`?page=${currentPage - 1}`} className="p-2 bg-gray-200 rounded" disabled={currentPage === 1}>Prev</a>
-        <a href={`?page=${currentPage + 1}`} className="p-2 bg-gray-200 rounded">Next</a>
-        <div>{currentPage}</div>
+      {/* Pagination */}
+      <div className="mt-6 flex gap-2 flex-wrap items-center">
+        {/* Prev button */}
+        <Link
+          href={`?page=${currentPage > 1 ? currentPage - 1 : 1}`}
+          className="px-3 py-1 border rounded bg-gray-100 text-gray-800"
+        >
+          Prev
+        </Link>
 
+        {/* Page numbers */}
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+          <Link
+            key={page}
+            href={`?page=${page}`}
+            className={clsx(
+              'px-3 py-1 border rounded',
+              page === currentPage ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-800'
+            )}
+          >
+            {page}
+          </Link>
+        ))}
+
+        {/* Next button */}
+        <Link
+          href={`?page=${currentPage < totalPages ? currentPage + 1 : totalPages}`}
+          className="px-3 py-1 border rounded bg-gray-100 text-gray-800"
+        >
+          Next
+        </Link>
       </div>
     </main>
   );
