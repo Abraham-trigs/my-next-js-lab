@@ -1,4 +1,5 @@
 import { fetchFilteredInvoices, fetchInvoicesPages } from '@/app/lib/data';
+import { generatePagination } from '@/app/lib/utils';
 import Link from 'next/link';
 import clsx from 'clsx';
 
@@ -10,6 +11,8 @@ export default async function InvoicesPage({ searchParams }: Props) {
   const currentPage = Number(searchParams.page) || 1;
   const invoices = await fetchFilteredInvoices('', currentPage);
   const totalPages = await fetchInvoicesPages('');
+
+  const pages = generatePagination(currentPage, totalPages);
 
   return (
     <main className="p-6">
@@ -40,19 +43,23 @@ export default async function InvoicesPage({ searchParams }: Props) {
           Prev
         </Link>
 
-        {/* Page numbers */}
-        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-          <Link
-            key={page}
-            href={`?page=${page}`}
-            className={clsx(
-              'px-3 py-1 border rounded',
-              page === currentPage ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-800'
-            )}
-          >
-            {page}
-          </Link>
-        ))}
+        {/* Page numbers with ellipsis */}
+        {pages.map((page, idx) =>
+          typeof page === 'number' ? (
+            <Link
+              key={idx}
+              href={`?page=${page}`}
+              className={clsx(
+                'px-3 py-1 border rounded',
+                page === currentPage ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-800'
+              )}
+            >
+              {page}
+            </Link>
+          ) : (
+            <span key={idx} className="px-3 py-1">...</span>
+          )
+        )}
 
         {/* Next button */}
         <Link
