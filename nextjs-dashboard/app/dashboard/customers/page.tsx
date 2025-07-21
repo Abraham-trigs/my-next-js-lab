@@ -9,14 +9,16 @@ type Props = {
 export default async function CustomersPage({ searchParams }: Props) {
   const currentPage = Number(searchParams.page) || 1;
 
-  const customers = await fetchFilteredCustomers('', currentPage);
-  const totalPages = await fetchCustomersPages('');
+  const [customers, totalPages] = await Promise.all([
+    fetchFilteredCustomers('', currentPage),
+    fetchCustomersPages(''),
+  ]);
 
   const pages = generatePagination(currentPage, totalPages);
 
   return (
     <main className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Customers - Page {currentPage}</h1>
+      <h1 className="text-2xl font-bold mb-4">Customers</h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {customers.map((customer) => (
@@ -48,7 +50,7 @@ function PaginationControls({
 }) {
   return (
     <>
-      <PageLink page={currentPage + 1} disabled={currentPage === 1}>
+      <PageLink page={currentPage - 1} disabled={currentPage === 1}>
         Prev
       </PageLink>
 

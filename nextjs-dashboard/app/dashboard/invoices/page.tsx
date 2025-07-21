@@ -4,19 +4,22 @@ import Link from 'next/link';
 import clsx from 'clsx';
 
 type Props = {
-  searchParams: { page?: string }
+  searchParams: { page?: string };
 };
 
 export default async function InvoicesPage({ searchParams }: Props) {
   const currentPage = Number(searchParams.page) || 1;
-  const invoices = await fetchFilteredInvoices('', currentPage);
-  const totalPages = await fetchInvoicesPages('');
+
+  const [invoices, totalPages] = await Promise.all([
+    fetchFilteredInvoices('', currentPage),
+    fetchInvoicesPages(''),
+  ]);
 
   const pages = generatePagination(currentPage, totalPages);
 
   return (
     <main className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Invoices - Page {currentPage}</h1>
+      <h1 className="text-2xl font-bold mb-4">Invoices</h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {invoices.map((invoice) => (
@@ -35,7 +38,6 @@ export default async function InvoicesPage({ searchParams }: Props) {
 
       {/* Pagination */}
       <div className="mt-6 flex gap-2 flex-wrap items-center">
-        {/* Prev button */}
         <Link
           href={`?page=${currentPage > 1 ? currentPage - 1 : 1}`}
           className="px-3 py-1 border rounded bg-gray-100 text-gray-800"
@@ -43,7 +45,6 @@ export default async function InvoicesPage({ searchParams }: Props) {
           Prev
         </Link>
 
-        {/* Page numbers with ellipsis */}
         {pages.map((page, idx) =>
           typeof page === 'number' ? (
             <Link
@@ -61,7 +62,6 @@ export default async function InvoicesPage({ searchParams }: Props) {
           )
         )}
 
-        {/* Next button */}
         <Link
           href={`?page=${currentPage < totalPages ? currentPage + 1 : totalPages}`}
           className="px-3 py-1 border rounded bg-gray-100 text-gray-800"
